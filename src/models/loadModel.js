@@ -43,22 +43,6 @@ const Load = mongoose.model('Load', {
     required: true,
   },
 
-  dimensions: {
-    type: Object,
-    width: {
-      required: true,
-      type: String,
-    },
-    height: {
-      required: true,
-      type: String,
-    },
-    length: {
-      required: true,
-      type: String,
-    },
-  },
-
   logs: {
     type: [{
       message: String,

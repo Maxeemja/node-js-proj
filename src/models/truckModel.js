@@ -13,8 +13,8 @@ const Truck = mongoose.model('Truck', {
 
   status: {
     type: String,
-    enum: ['OL', 'IS'],
-    default: 'IS',
+    enum: ['WORKING', 'IDLE'],
+    default: 'IDLE',
   },
 
   type: {

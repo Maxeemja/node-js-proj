@@ -3,7 +3,6 @@ const {Load} = require('../models/loadModel');
 const {Truck} = require('../models/truckModel');
 const {loadStatus, DRIVER, SHIPPER, loadStates} = require('../const');
 const {specifyTruckType} = require('../helpers/specifyTruckType');
-
 const addLoadToUser = async (loadInfo, userId) => {
   const load = new Load({...loadInfo, created_by: userId});
 
@@ -81,6 +80,12 @@ const setNextLoadState = async (userId) => {
 
   if (newState === loadStates[3]) {
     loadToChange.status = loadStatus.SHIPPED;
+    const truckToChange = await Truck.findOne({
+      assigned_to: userId,
+      status: 'WORKING'
+    })
+    truckToChange.status = 'IDLE'
+    truckToChange.save()
   }
 
   loadToChange.state = newState;
@@ -118,23 +123,19 @@ const deleteLoadById = async (loadId, userId) => {
 
 const postLoad = async (loadId, userId) => {
   const load = await getLoadById(loadId, userId);
-  // load.status = loadStatus.POSTED;
-  // load.save();
-
   const truckType = specifyTruckType({
     payload: load.payload,
-    dimensions: load.dimensions,
   });
 
   const truck = await Truck.findOne({
-    status: 'IS',
+    status: 'IDLE',
     assigned_to: {$exists: true},
     type: truckType,
   });
 
   if (!truck) return false;
 
-  truck.status = 'OL';
+  truck.status = 'WORKING';
   truck.save();
 
   load.status = loadStatus.ASSIGNED;

@@ -2,7 +2,7 @@ const express = require('express');
 const {InvalidRequestError} = require('../utils/errors');
 const {loadStatus} = require('../const');
 const {grantAccess} = require('../utils/roles');
-
+const {loadCreationValidation} = require('../middlewares/validationMidlleware');
 const {
   addLoadToUser,
   getLoads,
@@ -55,7 +55,7 @@ router.get('/:loadId', grantAccess('readOwn', 'loads'), asyncWrapper(async (req,
   return res.json({load});
 }));
 
-router.post('/', grantAccess('createOwn', 'loads'), asyncWrapper(async (req, res) => {
+router.post('/', grantAccess('createOwn', 'loads'), loadCreationValidation, asyncWrapper(async (req, res) => {
   const {userId} = req.user;
   await addLoadToUser(req.body, userId);
 
@@ -105,7 +105,7 @@ router.post('/:loadId/post', grantAccess('updateOwn', 'loads'), asyncWrapper(asy
   const isDriverFound = await postLoad(loadId, userId);
 
   res.json({
-    message: 'Load posted successfully',
+    message: isDriverFound ? 'Load posted successfully' : 'Load not posted',
     driver_found: isDriverFound,
   });
 }));
